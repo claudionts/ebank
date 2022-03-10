@@ -9,6 +9,7 @@ defmodule EbankWeb.Router do
     pipe_through :api
 
     get "/reset", ResetFileController, :index
+    get "/balance", OperationsController, :balance
   end
 
   if Mix.env() in [:dev, :test] do
