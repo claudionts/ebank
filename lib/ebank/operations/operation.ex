@@ -1,27 +1,27 @@
 defmodule Ebank.Operation do
   alias Ebank.Account
 
-  def call(%{"destination" => account_id, "amount" => amount}, type)
+  def call(%{"destination" => origin_id, "amount" => amount}, type)
       when type in ["deposit", "withdraw"] do
-    with %{"balance" => current_balance} <- Account.get(account_id),
-         true <- enough_balance(account_id, amount, type),
+    with %{"balance" => current_balance} <- Account.get(origin_id),
+         true <- enough_balance(origin_id, amount, type),
          :ok <-
            Account.change(
-             account_id,
+             origin_id,
              %{"balance" => handle_balance(amount, current_balance, String.to_atom(type))},
              "balance"
            ),
          :ok <-
            Account.change(
-             account_id,
-             create_transaction(account_id, amount, type),
+             origin_id,
+             create_transaction(origin_id, amount, type),
              "transactions"
            ) do
       {:ok,
        %{
          "destination" => %{
            "balance" => handle_balance(amount, current_balance, String.to_atom(type)),
-           "id" => account_id
+           "id" => origin_id
          }
        }}
     else
@@ -29,16 +29,32 @@ defmodule Ebank.Operation do
     end
   end
 
+  def call(
+        %{"destination" => destination_id, "amount" => amount, "origin" => origin_id},
+        "transfer"
+      ) do
+    with %{"id" => _} <- Account.get(origin_id),
+         {:ok, _} <- call(%{"destination" => origin_id, "amount" => amount}, "withdraw"),
+         {:ok, _} <- call(%{"destination" => destination_id, "amount" => amount}, "deposit") do
+      {:ok,
+       %{
+         "destination" => show_account(destination_id),
+         "origin" => show_account(origin_id)
+       }}
+    else
+      _ -> :account_not_found
+    end
+  end
+
+  defp show_account(account_id) do
+    Account.get(account_id) |> Map.delete("transactions")
+  end
   defp handle_balance(amount, current_balance, :deposit), do: current_balance + amount
 
   defp handle_balance(amount, current_balance, :withdraw), do: current_balance - amount
 
-  defp create_transaction(account_id, amount, type) do
-    %{
-      "transactions" => [
-        %{"type" => type, "destination" => account_id, "amount" => amount}
-      ]
-    }
+  defp create_transaction(origin_id, amount, type) do
+    %{"type" => type, "destination" => origin_id, "amount" => amount}
   end
 
   defp enough_balance(account_id, amount, type) do
