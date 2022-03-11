@@ -10,6 +10,7 @@ defmodule EbankWeb.Router do
 
     get "/reset", ResetFileController, :index
     get "/balance", OperationsController, :balance
+    post "/event", OperationsController, :deposit
   end
 
   if Mix.env() in [:dev, :test] do
