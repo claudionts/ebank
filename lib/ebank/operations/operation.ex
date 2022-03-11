@@ -1,7 +1,8 @@
 defmodule Ebank.Operation do
   alias Ebank.Account
 
-  def call(%{"destination" => account_id, "amount" => amount}, type) do
+  def call(%{"destination" => account_id, "amount" => amount}, type)
+      when type in ["deposit", "withdraw"] do
     with %{"balance" => current_balance} <- Account.get(account_id),
          true <- enough_balance(account_id, amount, type),
          :ok <-
@@ -16,7 +17,13 @@ defmodule Ebank.Operation do
              create_transaction(account_id, amount, type),
              "transactions"
            ) do
-      {:ok, %{"destination" => %{"balance" => amount + current_balance, "id" => account_id}}}
+      {:ok,
+       %{
+         "destination" => %{
+           "balance" => handle_balance(amount, current_balance, String.to_atom(type)),
+           "id" => account_id
+         }
+       }}
     else
       _ -> :account_not_found
     end
