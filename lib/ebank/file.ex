@@ -1,8 +1,8 @@
-defmodule Ebank.ResetFile do
+defmodule Ebank.File do
   @file_name "data.model.json"
 
-  @spec reset_file() :: atom
-  def reset_file do
+  @spec reset() :: atom
+  def reset do
     data = %{
       "accounts" => [
         %{
@@ -22,8 +22,8 @@ defmodule Ebank.ResetFile do
     File.write(@file_name, Jason.encode!(data))
   end
 
-  @spec file_data() :: map 
-  def file_data do
+  @spec data() :: map 
+  def data do
     File.read!(@file_name)
     |> Jason.decode!()
   end

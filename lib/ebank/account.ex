@@ -1,5 +1,5 @@
 defmodule Ebank.Account do
-  alias Ebank.ResetFile
+  alias Ebank.File
 
   @spec get(Integer.t()) :: map
   def get(account_id) do
@@ -22,12 +22,12 @@ defmodule Ebank.Account do
     new_account = [account_changed] ++ [unset_accounts]
 
     %{"accounts" => new_account}
-    |> ResetFile.change_data()
+    |> File.change_data()
   end
 
   @spec all() :: list(map)
   defp all do
-    %{"accounts" => accounts} = ResetFile.file_data()
+    %{"accounts" => accounts} = File.data()
     accounts
   end
 

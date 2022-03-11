@@ -1,10 +1,10 @@
 defmodule EbankWeb.ResetFileController do
   use EbankWeb, :controller
 
-  alias Ebank.ResetFile
+  alias Ebank.File
 
   def index(conn, _params) do
-    ResetFile.reset_file()
+    File.reset()
 
     conn
     |> put_status(:ok)
