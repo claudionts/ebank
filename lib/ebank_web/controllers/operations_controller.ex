@@ -2,12 +2,11 @@ defmodule EbankWeb.OperationsController do
   use EbankWeb, :controller
 
   alias Ebank.Operations.Balance
-  alias Ebank.Operation
+  alias Ebank.Operations.Deposit
 
   def deposit(conn, %{"type" => _, "destination" => destination, "amount" => amount}) do
     with {:ok, response} <-
-           Operation.run(%{"destination" => destination, "amount" => amount}, :deposit) do
-      IO.inspect response
+           Deposit.call(%{"destination" => destination, "amount" => amount}) do
       render_balance(conn, 201, response)
     else
       _ -> render_balance(conn, 404, 0)
