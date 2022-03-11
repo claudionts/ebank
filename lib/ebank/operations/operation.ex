@@ -10,12 +10,6 @@ defmodule Ebank.Operation do
              origin_id,
              %{"balance" => handle_balance(amount, current_balance, String.to_atom(type))},
              "balance"
-           ),
-         :ok <-
-           Account.change(
-             origin_id,
-             create_transaction(origin_id, amount, type),
-             "transactions"
            ) do
       {:ok,
        %{
@@ -52,10 +46,6 @@ defmodule Ebank.Operation do
   defp handle_balance(amount, current_balance, :deposit), do: current_balance + amount
 
   defp handle_balance(amount, current_balance, :withdraw), do: current_balance - amount
-
-  defp create_transaction(origin_id, amount, type) do
-    %{"type" => type, "destination" => origin_id, "amount" => amount}
-  end
 
   defp enough_balance(account_id, amount, type) do
     if type == "withdraw" do

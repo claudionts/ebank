@@ -3,10 +3,22 @@ defmodule EbankWeb.OperationsController do
 
   alias Ebank.Operations.Balance
   alias Ebank.Operation
+  alias Ebank.Account
 
   def deposit(conn, %{"type" => type, "destination" => _, "amount" => _} = params) do
+    account_id =
+      if type in ["deposit", "withdraw"],
+        do: Map.get(params, "destination"),
+        else: Map.get(params, "origin")
+
     with {:ok, response} <-
-      Operation.call(params, type) do
+           Operation.call(params, type),
+         :ok <-
+           Account.change(
+             account_id,
+             params,
+             "transactions"
+           ) do
       render_balance(conn, 201, response)
     else
       _ -> render_balance(conn, 404, 0)
@@ -20,7 +32,7 @@ defmodule EbankWeb.OperationsController do
     end
   end
 
-  def render_balance(conn, status, response) do
+  defp render_balance(conn, status, response) do
     conn
     |> put_status(status)
     |> put_view(EbankWeb.ResetView)
