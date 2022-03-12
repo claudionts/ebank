@@ -5,14 +5,20 @@ defmodule EbankWeb.OperationsController do
   alias Ebank.Operation
   alias Ebank.Account
 
+  @spec deposit(%Plug.Conn{}, %{
+          type: String.t(),
+          destination: Integer.t(),
+          amount: Integer.t()
+        }) :: map()
   def deposit(conn, %{"type" => type, "destination" => _, "amount" => _} = params) do
+    prepared_params = Operation.cast(params)
     account_id =
       if type in ["deposit", "withdraw"],
-        do: Map.get(params, "destination"),
-        else: Map.get(params, "origin")
+        do: Map.get(prepared_params, "destination"),
+        else: Map.get(prepared_params, "origin")
 
     with {:ok, response} <-
-           Operation.call(params, type),
+           Operation.call(prepared_params, type),
          :ok <-
            Account.change(
              account_id,
