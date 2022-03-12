@@ -40,9 +40,28 @@ defmodule Ebank.Operation do
     end
   end
 
+  def cast(%{"type" => type, "destination" => destination, "amount" => amount}) do
+    %{"type" => type, "destination" => to_integer(destination), "amount" => to_integer(amount)}
+  end
+
+  def cast(%{
+        "type" => type,
+        "destination" => destination,
+        "amount" => amount,
+        "origin" => origin
+      }) do
+    %{
+      "type" => type,
+      "destination" => to_integer(destination),
+      "amount" => to_integer(amount),
+      "origin" => to_integer(origin)
+    }
+  end
+
   defp show_account(account_id) do
     Account.get(account_id) |> Map.delete("transactions")
   end
+
   defp handle_balance(amount, current_balance, :deposit), do: current_balance + amount
 
   defp handle_balance(amount, current_balance, :withdraw), do: current_balance - amount
@@ -54,5 +73,9 @@ defmodule Ebank.Operation do
     else
       true
     end
+  end
+
+  defp to_integer(value) when is_binary(value) do
+    String.to_integer(value)
   end
 end
