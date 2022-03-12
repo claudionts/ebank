@@ -40,10 +40,6 @@ defmodule Ebank.Operation do
     end
   end
 
-  def cast(%{"type" => type, "destination" => destination, "amount" => amount}) do
-    %{"type" => type, "destination" => to_integer(destination), "amount" => to_integer(amount)}
-  end
-
   def cast(%{
         "type" => type,
         "destination" => destination,
@@ -56,6 +52,10 @@ defmodule Ebank.Operation do
       "amount" => to_integer(amount),
       "origin" => to_integer(origin)
     }
+  end
+
+  def cast(%{"type" => type, "destination" => destination, "amount" => amount}) do
+    %{"type" => type, "destination" => to_integer(destination), "amount" => to_integer(amount)}
   end
 
   defp show_account(account_id) do
