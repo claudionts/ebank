@@ -1,7 +1,7 @@
 defmodule Ebank.File do
   @file_name "data.model.json"
 
-  @spec reset() :: atom
+  @spec reset() :: :ok
   def reset do
     data = %{
       "accounts" => [

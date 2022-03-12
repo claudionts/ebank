@@ -12,6 +12,7 @@ defmodule EbankWeb.OperationsController do
         }) :: map()
   def operation(conn, %{"type" => type, "destination" => _, "amount" => _} = params) do
     prepared_params = Operation.cast(params)
+
     account_id =
       if type in ["deposit", "withdraw"],
         do: Map.get(prepared_params, "destination"),
@@ -31,6 +32,7 @@ defmodule EbankWeb.OperationsController do
     end
   end
 
+  @spec balance(%Plug.Conn{}, %{id: Integer.t()}) :: map()
   def balance(conn, %{"id" => id}) do
     case response = Balance.account_balance(String.to_integer(id)) do
       :account_not_found -> render_balance(conn, 404, 0)
@@ -38,6 +40,7 @@ defmodule EbankWeb.OperationsController do
     end
   end
 
+  @spec render_balance(%Plug.Conn{}, Integer, Map.t()) :: any
   defp render_balance(conn, status, response) do
     conn
     |> put_status(status)
