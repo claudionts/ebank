@@ -1,11 +1,14 @@
 defmodule Ebank.Operation do
   alias Ebank.Account
 
-  @spec call(%{
-          type: String.t(),
-          destination: Integer.t(),
-          amount: Integer.t()
-        }, String.t()) :: map() | :account_not_found
+  @spec call(
+          %{
+            type: String.t(),
+            destination: Integer.t(),
+            amount: Integer.t()
+          },
+          String.t()
+        ) :: map() | :account_not_found
   def call(%{"destination" => origin_id, "amount" => amount}, type)
       when type in ["deposit", "withdraw"] do
     with %{"balance" => current_balance} <- Account.get(origin_id),
@@ -28,12 +31,15 @@ defmodule Ebank.Operation do
     end
   end
 
-  @spec call(%{
-          type: String.t(),
-          destination: Integer.t(),
-          amount: Integer.t(),
-          origin: Integer.t()
-        }, String.t()) :: map() | :account_not_found
+  @spec call(
+          %{
+            type: String.t(),
+            destination: Integer.t(),
+            amount: Integer.t(),
+            origin: Integer.t()
+          },
+          String.t()
+        ) :: map() | :account_not_found
   def call(
         %{"destination" => destination_id, "amount" => amount, "origin" => origin_id},
         "transfer"
@@ -51,12 +57,15 @@ defmodule Ebank.Operation do
     end
   end
 
-  @spec call(%{
-          type: String.t(),
-          destination: Integer.t(),
-          amount: Integer.t(),
-          origin: Integer.t()
-  }, String.t()) :: map()
+  @spec call(
+          %{
+            type: String.t(),
+            destination: Integer.t(),
+            amount: Integer.t(),
+            origin: Integer.t()
+          },
+          String.t()
+        ) :: map()
   def cast(%{
         "type" => type,
         "destination" => destination,
@@ -71,11 +80,14 @@ defmodule Ebank.Operation do
     }
   end
 
-  @spec call(%{
-          type: String.t(),
-          destination: Integer.t(),
-          amount: Integer.t()
-        }, String.t()) :: map()
+  @spec call(
+          %{
+            type: String.t(),
+            destination: Integer.t(),
+            amount: Integer.t()
+          },
+          String.t()
+        ) :: map()
   def cast(%{"type" => type, "destination" => destination, "amount" => amount}) do
     %{"type" => type, "destination" => to_integer(destination), "amount" => to_integer(amount)}
   end

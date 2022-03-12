@@ -3,7 +3,6 @@ defmodule EbankWeb.ResetFileController do
 
   alias Ebank.File
 
-
   @spec index(%Plug.Conn{}, map()) :: map()
   def index(conn, _params) do
     File.reset()

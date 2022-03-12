@@ -22,7 +22,7 @@ defmodule Ebank.File do
     File.write(@file_name, Jason.encode!(data))
   end
 
-  @spec data() :: map 
+  @spec data() :: map
   def data do
     File.read!(@file_name)
     |> Jason.decode!()

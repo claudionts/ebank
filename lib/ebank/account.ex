@@ -37,7 +37,6 @@ defmodule Ebank.Account do
     |> Map.put("transactions", [value | transactions])
   end
 
-
   @spec change_field(Integer, map(), atom) :: map()
   defp change_field(current_account, %{"balance" => balance}, :balance) do
     current_account
