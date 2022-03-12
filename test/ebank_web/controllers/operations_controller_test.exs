@@ -29,7 +29,7 @@ defmodule EbankWeb.OperationsControllerTest do
       assert %{"destination" => %{"balance" => 110, "id" => 100}} =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "deposit",
                    "destination" => 100,
                    "amount" => 100
@@ -42,7 +42,7 @@ defmodule EbankWeb.OperationsControllerTest do
       assert 0 =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "deposit",
                    "destination" => 101,
                    "amount" => 100
@@ -55,7 +55,7 @@ defmodule EbankWeb.OperationsControllerTest do
       assert %{"destination" => %{"balance" => 0, "id" => 100}} =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "withdraw",
                    "destination" => 100,
                    "amount" => 10
@@ -68,7 +68,7 @@ defmodule EbankWeb.OperationsControllerTest do
       assert 0 =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "withdraw",
                    "destination" => 101,
                    "amount" => 100
@@ -84,7 +84,7 @@ defmodule EbankWeb.OperationsControllerTest do
              } =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "transfer",
                    "origin" => 100,
                    "destination" => 300,
@@ -98,7 +98,7 @@ defmodule EbankWeb.OperationsControllerTest do
       assert 0 =
                conn
                |> post(
-                 Routes.operations_path(conn, :deposit, %{
+                 Routes.operations_path(conn, :operation, %{
                    "type" => "transfer",
                    "origin" => 101,
                    "destination" => 300,
