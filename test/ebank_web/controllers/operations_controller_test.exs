@@ -10,7 +10,7 @@ defmodule EbankWeb.OperationsControllerTest do
 
   describe "/balance router" do
     test "return balance account", %{conn: conn} do
-      assert 10 =
+      assert 0 =
                conn
                |> get(Routes.operations_path(conn, :balance, %{"account_id" => 100}))
                |> json_response(200)
@@ -26,7 +26,7 @@ defmodule EbankWeb.OperationsControllerTest do
 
   describe "/event routers" do
     test "deposit :201", %{conn: conn} do
-      assert %{"destination" => %{"balance" => 110, "id" => 100}} =
+      assert %{"destination" => %{"balance" => 100, "id" => "100"}} =
                conn
                |> post(
                  Routes.operations_path(conn, :operation, %{
@@ -52,13 +52,24 @@ defmodule EbankWeb.OperationsControllerTest do
     end
 
     test "withdraw :201", %{conn: conn} do
-      assert %{"destination" => %{"balance" => 0, "id" => 100}} =
+      assert %{"destination" => %{"balance" => 100, "id" => "100"}} =
+               conn
+               |> post(
+                 Routes.operations_path(conn, :operation, %{
+                   "type" => "deposit",
+                   "destination" => 100,
+                   "amount" => 100
+                 })
+               )
+               |> json_response(201)
+
+      assert %{"destination" => %{"balance" => 0, "id" => "100"}} =
                conn
                |> post(
                  Routes.operations_path(conn, :operation, %{
                    "type" => "withdraw",
                    "destination" => 100,
-                   "amount" => 10
+                   "amount" => 100
                  })
                )
                |> json_response(201)
@@ -78,6 +89,17 @@ defmodule EbankWeb.OperationsControllerTest do
     end
 
     test "transfer :201", %{conn: conn} do
+      assert %{"destination" => %{"balance" => 10, "id" => "100"}} =
+               conn
+               |> post(
+                 Routes.operations_path(conn, :operation, %{
+                   "type" => "deposit",
+                   "destination" => 100,
+                   "amount" => 10
+                 })
+               )
+               |> json_response(201)
+
       assert %{
                "destination" => %{"balance" => 10, "id" => 300},
                "origin" => %{"balance" => 0, "id" => 100}

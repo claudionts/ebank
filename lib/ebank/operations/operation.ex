@@ -5,25 +5,67 @@ defmodule Ebank.Operation do
           %{
             type: String.t(),
             destination: Integer.t(),
+            amount: Integer.t(),
+            origin: Integer.t()
+          },
+          String.t()
+        ) :: map() | :account_not_found
+  def call(
+        params,
+        "transfer"
+      ) do
+    %{"destination" => destination_id, "amount" => amount, "origin" => origin_id} = params
+
+    with %{"id" => _} <- Account.get(origin_id),
+         {:ok, _} <- call(%{"origin" => origin_id, "amount" => amount}, "withdraw"),
+         {:ok, _} <- call(%{"destination" => destination_id, "amount" => amount}, "deposit"),
+         %{"id" => id_destination} = destination = show_account(destination_id),
+         %{"id" => id_origin} = origin = show_account(origin_id) do
+      {:ok,
+       %{
+         "destination" => Map.put(destination, "id", Integer.to_string(id_destination)),
+         "origin" => Map.put(origin, "id", Integer.to_string(id_origin))
+       }}
+    else
+      _ -> :account_not_found
+    end
+  end
+
+  @spec call(
+          %{
+            type: String.t(),
+            destination: Integer.t(),
             amount: Integer.t()
           },
           String.t()
         ) :: map() | :account_not_found
-  def call(%{"destination" => origin_id, "amount" => amount}, type)
+  def call(params, type)
       when type in ["deposit", "withdraw"] do
-    with %{"balance" => current_balance} <- Account.get(origin_id),
-         true <- enough_balance(origin_id, amount, type),
+    %{"amount" => amount} = params
+
+    account_id =
+      if params["destination"] != nil,
+        do: params["destination"],
+        else: params["origin"]
+
+    key_map =
+      if type == "withdraw",
+        do: "origin",
+        else: "destination"
+
+    with %{"balance" => current_balance} <- Account.get(account_id),
+         true <- enough_balance(account_id, amount, type),
          :ok <-
            Account.change(
-             origin_id,
+             account_id,
              %{"balance" => handle_balance(amount, current_balance, String.to_atom(type))},
              "balance"
            ) do
       {:ok,
        %{
-         "destination" => %{
-           "balance" => handle_balance(amount, current_balance, String.to_atom(type)),
-           "id" => origin_id
+         key_map => %{
+           "id" => Integer.to_string(account_id),
+           "balance" => handle_balance(amount, current_balance, String.to_atom(type))
          }
        }}
     else
@@ -31,41 +73,12 @@ defmodule Ebank.Operation do
     end
   end
 
-  @spec call(
-          %{
-            type: String.t(),
-            destination: Integer.t(),
-            amount: Integer.t(),
-            origin: Integer.t()
-          },
-          String.t()
-        ) :: map() | :account_not_found
-  def call(
-        %{"destination" => destination_id, "amount" => amount, "origin" => origin_id},
-        "transfer"
-      ) do
-    with %{"id" => _} <- Account.get(origin_id),
-         {:ok, _} <- call(%{"destination" => origin_id, "amount" => amount}, "withdraw"),
-         {:ok, _} <- call(%{"destination" => destination_id, "amount" => amount}, "deposit") do
-      {:ok,
-       %{
-         "destination" => show_account(destination_id),
-         "origin" => show_account(origin_id)
-       }}
-    else
-      _ -> :account_not_found
-    end
-  end
-
-  @spec call(
-          %{
-            type: String.t(),
-            destination: Integer.t(),
-            amount: Integer.t(),
-            origin: Integer.t()
-          },
-          String.t()
-        ) :: map()
+  @spec cast(%{
+          type: String.t(),
+          destination: Integer.t(),
+          amount: Integer.t(),
+          origin: Integer.t()
+        }) :: map()
   def cast(%{
         "type" => type,
         "destination" => destination,
@@ -80,20 +93,35 @@ defmodule Ebank.Operation do
     }
   end
 
-  @spec call(
-          %{
-            type: String.t(),
-            destination: Integer.t(),
-            amount: Integer.t()
-          },
-          String.t()
-        ) :: map()
+  @spec cast(%{
+          type: String.t(),
+          destination: Integer.t(),
+          amount: Integer.t()
+        }) :: map()
   def cast(%{"type" => type, "destination" => destination, "amount" => amount}) do
     %{"type" => type, "destination" => to_integer(destination), "amount" => to_integer(amount)}
   end
 
+  @spec cast(%{
+          type: String.t(),
+          origin: Integer.t(),
+          amount: Integer.t()
+        }) :: map()
+  def cast(%{"type" => type, "origin" => origin, "amount" => amount}) do
+    %{"type" => type, "origin" => to_integer(origin), "amount" => to_integer(amount)}
+  end
+
   defp show_account(account_id) do
-    Account.get(account_id) |> Map.delete("transactions")
+    account =
+      account_id
+      |> to_integer()
+      |> Account.get()
+
+    if not is_nil(account) && Map.has_key?(account, "transactions") do
+      Map.delete(account, "transactions")
+    else
+      nil
+    end
   end
 
   defp handle_balance(amount, current_balance, :deposit), do: current_balance + amount

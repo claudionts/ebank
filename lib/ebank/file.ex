@@ -6,7 +6,7 @@ defmodule Ebank.File do
     data = %{
       "accounts" => [
         %{
-          "balance" => 10,
+          "balance" => 0,
           "id" => 100,
           "transactions" => []
         },

@@ -10,11 +10,11 @@ defmodule EbankWeb.OperationsController do
           destination: Integer.t(),
           amount: Integer.t()
         }) :: map()
-  def operation(conn, %{"type" => type, "destination" => _, "amount" => _} = params) do
+  def operation(conn, %{"type" => type} = params) do
     prepared_params = Operation.cast(params)
 
     account_id =
-      if type in ["deposit", "withdraw"],
+      if Map.get(prepared_params, "destination"),
         do: Map.get(prepared_params, "destination"),
         else: Map.get(prepared_params, "origin")
 
