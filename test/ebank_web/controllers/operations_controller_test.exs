@@ -12,14 +12,14 @@ defmodule EbankWeb.OperationsControllerTest do
     test "return balance account", %{conn: conn} do
       assert 10 =
                conn
-               |> get(Routes.operations_path(conn, :balance, %{"id" => 100}))
+               |> get(Routes.operations_path(conn, :balance, %{"account_id" => 100}))
                |> json_response(200)
     end
 
     test "account not found", %{conn: conn} do
       assert 0 =
                conn
-               |> get(Routes.operations_path(conn, :balance, %{"id" => 101}))
+               |> get(Routes.operations_path(conn, :balance, %{"account_id" => 101}))
                |> json_response(404)
     end
   end

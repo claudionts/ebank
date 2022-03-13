@@ -33,7 +33,7 @@ defmodule EbankWeb.OperationsController do
   end
 
   @spec balance(%Plug.Conn{}, %{id: Integer.t()}) :: map()
-  def balance(conn, %{"id" => id}) do
+  def balance(conn, %{"account_id" => id}) do
     case response = Balance.account_balance(String.to_integer(id)) do
       :account_not_found -> render_balance(conn, 404, 0)
       _ -> render_balance(conn, :ok, response)
