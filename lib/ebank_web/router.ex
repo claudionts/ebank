@@ -5,10 +5,10 @@ defmodule EbankWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", EbankWeb do
+  scope "/", EbankWeb do
     pipe_through :api
 
-    get "/reset", ResetFileController, :index
+    post "/reset", ResetFileController, :index
     get "/balance", OperationsController, :balance
     post "/event", OperationsController, :operation
   end

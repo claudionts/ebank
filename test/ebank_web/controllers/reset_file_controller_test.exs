@@ -9,8 +9,8 @@ defmodule EbankWeb.ResetFileControllerTest do
     test "reset file data mock", %{conn: conn} do
       assert "OK" =
                conn
-               |> get(Routes.reset_file_path(conn, :index))
-               |> json_response(200)
+               |> post(Routes.reset_file_path(conn, :index))
+               |> response(200)
     end
   end
 end

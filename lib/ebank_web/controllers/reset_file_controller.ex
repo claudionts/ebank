@@ -8,8 +8,6 @@ defmodule EbankWeb.ResetFileController do
     File.reset()
 
     conn
-    |> put_status(:ok)
-    |> put_view(EbankWeb.ResetView)
-    |> render("generic_view.json", response: "OK")
+    |> send_resp(200, ["OK"])
   end
 end
