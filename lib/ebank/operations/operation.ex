@@ -112,4 +112,8 @@ defmodule Ebank.Operation do
   defp to_integer(value) when is_binary(value) do
     String.to_integer(value)
   end
+
+  defp to_integer(value) when is_integer(value) do
+    value
+  end
 end
